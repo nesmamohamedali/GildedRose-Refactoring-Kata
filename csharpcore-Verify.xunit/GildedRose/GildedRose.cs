@@ -9,81 +9,81 @@ namespace GildedRoseKata
         {
             this.Items = Items;
         }
-
-        public void UpdateQuality()
+public  void UpdateQuality()
+{
+    foreach (var item in Items)
+    {
+        if (item.Name != "Sulfuras, Hand of Ragnaros")
         {
-            for (var i = 0; i < Items.Count; i++)
+            item.SellIn -= 1;
+
+            if (item.Name == "Aged Brie")
             {
-                if (Items[i].Name != "Aged Brie" && Items[i].Name != "Backstage passes to a TAFKAL80ETC concert")
+                IncreaseQuality(item);
+            }
+            else if (item.Name == "Backstage passes to a TAFKAL80ETC concert")
+            {
+                UpdateBackstagePass(item);
+            }
+            else if (item.Name.StartsWith("Conjured"))
+            {
+                DecreaseQuality(item, 2);
+            }
+            else
+            {
+                DecreaseQuality(item);
+            }
+
+            if (item.SellIn < 0)
+            {
+                if (item.Name == "Aged Brie")
                 {
-                    if (Items[i].Quality > 0)
-                    {
-                        if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
-                        {
-                            Items[i].Quality = Items[i].Quality - 1;
-                        }
-                    }
+                    IncreaseQuality(item);
+                }
+                else if (item.Name == "Backstage passes to a TAFKAL80ETC concert")
+                {
+                    item.Quality = 0;
+                }
+                else if (item.Name.StartsWith("Conjured"))
+                {
+                    DecreaseQuality(item, 4);
                 }
                 else
                 {
-                    if (Items[i].Quality < 50)
-                    {
-                        Items[i].Quality = Items[i].Quality + 1;
-
-                        if (Items[i].Name == "Backstage passes to a TAFKAL80ETC concert")
-                        {
-                            if (Items[i].SellIn < 11)
-                            {
-                                if (Items[i].Quality < 50)
-                                {
-                                    Items[i].Quality = Items[i].Quality + 1;
-                                }
-                            }
-
-                            if (Items[i].SellIn < 6)
-                            {
-                                if (Items[i].Quality < 50)
-                                {
-                                    Items[i].Quality = Items[i].Quality + 1;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
-                {
-                    Items[i].SellIn = Items[i].SellIn - 1;
-                }
-
-                if (Items[i].SellIn < 0)
-                {
-                    if (Items[i].Name != "Aged Brie")
-                    {
-                        if (Items[i].Name != "Backstage passes to a TAFKAL80ETC concert")
-                        {
-                            if (Items[i].Quality > 0)
-                            {
-                                if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
-                                {
-                                    Items[i].Quality = Items[i].Quality - 1;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Items[i].Quality = Items[i].Quality - Items[i].Quality;
-                        }
-                    }
-                    else
-                    {
-                        if (Items[i].Quality < 50)
-                        {
-                            Items[i].Quality = Items[i].Quality + 1;
-                        }
-                    }
+                    DecreaseQuality(item);
                 }
             }
         }
     }
+}
+
+private static void DecreaseQuality(Item item, int factor = 1)
+{
+    item.Quality = Math.Max(0, item.Quality - (factor * (item.SellIn < 0 ? 2 : 1)));
+}
+
+private static void IncreaseQuality(Item item)
+{
+    item.Quality = Math.Min(50, item.Quality + 1);
+}
+
+private static void UpdateBackstagePass(Item item)
+{
+    if (item.SellIn < 0)
+    {
+        item.Quality = 0;
+    }
+    else if (item.SellIn < 5)
+    {
+        IncreaseQuality(item, 3);
+    }
+    else if (item.SellIn < 10)
+    {
+        IncreaseQuality(item, 2);
+    }
+    else
+    {
+        IncreaseQuality(item);
+    }
+}
 }
